@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101010">
+<title>CDF FESTIVAL MBTI</title>
+<style>
+:root{--bg:#101010;--panel:#1c1c1c;--muted:#a5a5a5;--mint:#b8f36b;--line:#353535}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;min-height:100vh}
+button{font:inherit;cursor:pointer}
+.wrap{width:min(100%,520px);min-height:100vh;margin:auto;padding:24px 20px 34px;display:flex;flex-direction:column}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:12px;letter-spacing:.12em;font-weight:800}
+.logo{color:var(--mint)}
+.kicker{color:var(--muted)}
+.hero{margin:auto 0; padding:50px 0}
+.eyebrow{color:var(--mint);font-size:12px;font-weight:800;letter-spacing:.18em}
+h1{font-size:clamp(38px,10vw,58px);line-height:1.04;letter-spacing:-.06em;margin:18px 0}
+h1 span{color:var(--mint)}
+.lead{color:#c7c7c7;line-height:1.7;font-size:14px;max-width:340px}
+.primary{background:var(--mint);color:#111;border:0;border-radius:14px;padding:17px 20px;font-weight:900;width:100%;margin-top:30px}
+.secondary{background:transparent;color:#fff;border:1px solid #555;border-radius:12px;padding:14px 18px;width:100%;margin-top:10px}
+.progressline{height:5px;background:#333;border-radius:20px;overflow:hidden;margin:24px 0 30px}
+.progressfill{height:100%;width:0;background:var(--mint);transition:width .2s}
+.qmeta{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;font-weight:800;letter-spacing:.12em}
+.qtitle{font-size:clamp(25px,7vw,32px);line-height:1.35;letter-spacing:-.045em;margin:18px 0 28px;word-break:keep-all}
+.choice{display:block;width:100%;text-align:left;padding:19px 17px;border:1px solid #444;background:var(--panel);color:#fff;border-radius:15px;margin:12px 0;line-height:1.55;font-size:15px;word-break:keep-all;transition:.15s}
+.choice:active,.choice.selected{border-color:var(--mint);background:#293020}
+.choice b{display:block;color:var(--mint);font-size:11px;letter-spacing:.1em;margin-bottom:7px}
+.nav{display:flex;gap:10px;margin-top:auto;padding-top:24px}
+.nav button{flex:1}
+.nav .secondary{margin:0}
+.hidden{display:none!important}
+.resulthead{text-align:center;margin:65px 0 32px}
+.resulthead h2{font-size:32px;line-height:1.25;letter-spacing:-.05em;margin:15px 0}
+.resulthead p{color:var(--muted);font-size:13px}
+.resultcard{border:1px solid #454545;background:linear-gradient(145deg,#252a20,#1b1b1b 65%);border-radius:22px;padding:26px 20px;text-align:center}
+.artist-placeholder{width:116px;height:116px;border-radius:50%;margin:0 auto 20px;background:#30352a;border:1px solid #63734c;display:grid;place-items:center;color:var(--mint);font-size:34px;font-weight:900}
+.group{color:var(--mint);font-size:13px;font-weight:800;letter-spacing:.08em}
+.artist{font-size:34px;font-weight:900;letter-spacing:-.05em;margin:8px 0 6px}
+.matchlabel{font-size:11px;color:#bcbcbc;letter-spacing:.16em}
+.note{font-size:12px;color:#aaa;line-height:1.65;margin:18px auto 0;max-width:330px}
+.foot{color:#777;text-align:center;font-size:10px;margin-top:28px;line-height:1.6}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="top"><div class="logo">CDF</div></div>
+
+  <section id="intro" class="hero">
+    
+    <h1>나와 잘 맞는<br><span>CDF 아티스트는?</span></h1>
+    <p class="lead">페스티벌을 준비하는 순간부터 집으로 돌아가는 길까지!<br>10개의 선택으로 나와 가장 잘 맞는 아티스트를 찾아보세요.</p>
+    <button class="primary" onclick="start()">START THE TEST ↗</button>
+    <div class="foot">총 10문항</div>
+  </section>
+
+  <section id="quiz" class="hidden" style="flex:1;display:flex;flex-direction:column">
+    <div class="progressline"><div id="progress" class="progressfill"></div></div>
+    <div class="qmeta"><span id="step">페스티벌 가기 전</span><span id="number">01 / 10</span></div>
+    <h2 id="question" class="qtitle"></h2>
+    <div id="choices"></div>
+    <div class="nav">
+      <button class="secondary" onclick="prev()">이전</button>
+      <button id="next" class="primary" style="margin:0" disabled onclick="next()">다음</button>
+    </div>
+  </section>
+
+  <section id="result" class="hidden">
+    <div class="resulthead">
+      
+      <h2>나와 가장 잘 맞는<br>아티스트는?</h2>
+      <p>당신의 페스티벌 취향과 가장 가까운 궁합을 찾았어요.</p>
+    </div>
+    <div class="resultcard">
+      <div class="artist-placeholder">CDF</div>
+      
+      <div id="group" class="group"></div>
+      <div id="artist" class="artist"></div>
+      <p class="note">함께 페스티벌을 즐긴다면 더 특별한 하루가 될지도!</p>
+    </div>
+    <button class="primary" onclick="restart()">다시 테스트하기 ↻</button>
+    <button class="secondary" onclick="copyResult()">결과 공유하기</button>
+    <div class="foot">※ MBTI 궁합표를 참고한 페스티벌용 재미 테스트입니다.</div>
+  </section>
+</main>
+<script>
+const questions = [
+ {step:"페스티벌 가기 전",q:"내일은 드디어 CDF 가는 날!",a:"타임테이블을 확인하고 보고 싶은 공연을 체크해보자",b:"계획은 사치! 내일은 내 마음 가는 대로 움직일 예정이다",axis:"JP",aType:"J",bType:"P"},
+ {step:"페스티벌 가기 전",q:"내일 같이 가는 친구에게 연락을 해볼까?",a:"친구는 많을수록 즐거운 법! 다 같이 즐길 친구들을 모은다",b:"잘 맞는 친구 한두 명과 오붓하게 즐긴다",axis:"EI",aType:"E",bType:"I"},
+ {step:"페스티벌 가기 전",q:"그래도 페스티벌 가는데 가방은 싸놔야겠지",a:"메모장에 준비물을 리스트업하고 빠짐없이 준비해놓자",b:"생각나는 물건만 챙기고 내일 나가기 전에 다시 생각해야지",axis:"JP",aType:"J",bType:"P"},
+ {step:"페스티벌 도착",q:"드디어 CDF가 열리는 킨텍스에 도착했다! 아, 이거 해야 돼",a:"민티한테 절도 하고 포토존에서 사진도 찍고 다 참여해야 돼",b:"일단 여유롭게 둘러보고 좀 쉬다가 공연 보자",axis:"EI",aType:"E",bType:"I"},
+ {step:"페스티벌 즐기기",q:"새해 소원을 적는 이벤트 존을 발견했다! 참여해볼까?",a:"너무 감동이야! (진심을 담아서 5억 줄 쓰는 중)",b:"로또 당첨",axis:"FT",aType:"F",bType:"T"},
+ {step:"페스티벌 즐기기",q:"페스티벌에서 마음에 드는 굿즈를 발견했다! 생각보다 비싸네",a:"지금 이 순간의 행복이 중요하지! 마음에 들면 구매한다.",b:"가격 대비 활용도와 소장 가치를 따져보고 결정한다.",axis:"FT",aType:"F",bType:"T"},
+ {step:"공연 관람",q:"보고 싶은 두 아티스트의 공연 시간이 겹친다!",a:"이미 알고 있던 사실이야. 완벽한 동선을 짜놨지",b:"일단 여기 공연 보면서 생각해보자",axis:"JP",aType:"J",bType:"P"},
+ {step:"공연 관람",q:"친구가 보고 싶었던 공연을 놓쳐서 아쉬워한다",a:"헐 어떡해 ㅠㅠ 나라도 너무 아쉬울 것 같아",b:"다음 공연 시간 확인해 보자! 다른 무대라도 볼까?",axis:"FT",aType:"F",bType:"T"},
+ {step:"공연 기다리는 중",q:"공연을 기다리는 도중 옆에 있던 친구가 잼얘 해달라고 한다",a:"만약에… 지금 스탠딩에서 밴드맨 마주치면 뭐 할 거임?",b:"얼마 전에 내가 페스티벌에서 재미있는 일이 있었는데…",axis:"NS",aType:"N",bType:"S"},
+ {step:"집으로 가는 길",q:"드디어 CDF가 끝났다",a:"뒷풀이 가야지! 국밥집 가서 아침 해장 ㄱ",b:"바로 집 가서 따수운 전기장판에 다이브",axis:"EI",aType:"E",bType:"I"}
+];
+const artists = [
+["드래곤포니","안태규","ESFJ"],["드래곤포니","권세혁","INTJ"],["드래곤포니","고강훈","ESFP"],
+["까치산","김진호","ISTJ"],["까치산","한태인","INTP"],["까치산","최선용","ISTP"],
+["리도어","이등대","INFP"],["리도어","최승현","ENFJ"],["리도어","주상욱","ENFJ"],
+["극동아시아타이거즈","명지수","INFP"],
+["라쿠나","장경민","INFP"],["라쿠나","김호","ENTJ"],["라쿠나","정민혁","ENFP"],["라쿠나","오이삭","ESTP"],
+["실리카겔","김건재","ENTJ"],["실리카겔","김춘추","INTP"],["실리카겔","김한주","ENFJ"],["실리카겔","최웅희","ENFP"],
+["씨앤블루","정용화","ESFP"],["씨앤블루","이정신","ENTP"],["씨앤블루","강민혁","ESFJ"],
+["원위","기욱","INFJ"],["원위","하린","ENTJ"],["원위","강현","INFJ"],["원위","동명","ISTJ"],["원위","용훈","ESTP"],
+["터치드","채도현","ENTP"],["터치드","존비킴","ISTJ"],["터치드","윤민","INFJ"],["터치드","김승빈","INTP"],
+["캔트비블루","김채현","INTP"],["캔트비블루","이휘원","ESTJ"],["캔트비블루","권다현","INTJ"],["캔트비블루","김대훈","INFP"],["캔트비블루","이도훈","INTP"]
+];
+// Uploaded compatibility chart: each row lists partner MBTI types from most ideal toward least compatible.
+const ranking = {
+ENTJ:"ISFP INFP ESFP ESTP ISTP INTP ENFP INFJ INTJ ENFJ ISTJ ENTP ESTJ ENTJ ESFJ ISFJ",
+ENTP:"ISFJ ISTJ ENTP ESTJ ESFJ INFJ INTJ INFP ENFJ INTP ISTP ENFP ESTP ENTJ ESFP ISFP",
+INTJ:"ESFP ESTP ISFP INFP INFJ ENFP ENTP ISTP ENFJ INTJ ISTJ ENTJ INTP ESTJ ISFJ ESFJ",
+INTP:"ESFJ ENFJ ISFJ INFJ ESTJ ISTJ ENTJ ENFP ENTP INTP INTJ ISTP INFP ESTP ISFP ESFP",
+ESTJ:"INFP ISFP INTP ENTP ISTP ESFP ENFP ISTJ ISFJ ESTJ ESFJ INTJ ENTJ ESTP ENFJ INFJ",
+ESFJ:"INTP ISTP ENTP ENFP INFP ISTJ ESFJ ESTP ISFP ENFJ ISFJ INFJ ESTJ ESFP ENTJ INTJ",
+ISTJ:"ENFP ENTP ISFP INFP ESTP ESFP INTP ESTJ ESFJ ISTJ INTJ ISFJ ISTP ENTJ INFJ ENFJ",
+ISFJ:"ENTP ENFP INTP ISTP ESFP ESTP ESTJ INFP ESFJ ISTJ ISFJ ENFJ INFJ ISFP INTJ ENTJ",
+ENFJ:"ISTP INTP ESTP ESFP ENFJ INFP ISFP ENTP INTJ ESFJ INFJ ENFP ENTJ ISFJ ESTJ ISTJ",
+ENFP:"ISTJ ISFJ ESFJ ESTJ INFJ INTJ ENTJ ISFP ENFP INTP INFP ENFJ ENTP ESFP ESTP ISTP",
+INFJ:"ESTP ESFP ISTP INTP ENFP ENTP INTJ ENTJ INFJ ISFP ENFJ ESFJ ISFJ INFP ISTJ ESTJ",
+INFP:"ESTJ ENTJ INTJ ISTJ ENFJ ESFJ ENTP INFP ISFJ INTP ESFP ENFP ISFP INFJ ISTP ESTP",
+ESTP:"INFJ INTJ ENFJ ENTJ ISFJ ISTP ISTJ ESFJ ESTP ISFP ESFP INTP ENTP ESTJ ENFP INFP",
+ESFP:"INTJ INFJ ENTJ ENFJ ESTJ ISTJ ISFJ ISFP ISTP INFP ESFP ESTP ESFJ ENFP ENTP INTP",
+ISTP:"ENFJ ESFJ INFJ ISFJ ENTJ ESTJ ESFP ESTP INTJ ISTP INTP ENTP ISTJ ISFP INFP ENFP",
+ISFP:"ENTJ ESTJ INTJ ISTJ ENFJ ESFJ INFJ ESFP ISFP ESTP ENFP INFP ISTP ISFJ INTP ENTP"
+};
+let current=0,answers={};
+function start(){document.getElementById('intro').classList.add('hidden');document.getElementById('result').classList.add('hidden');document.getElementById('quiz').classList.remove('hidden');current=0;answers={};render()}
+function render(){
+ const q=questions[current];document.getElementById('step').textContent=q.step;document.getElementById('number').textContent=String(current+1).padStart(2,'0')+" / 10";
+ document.getElementById('question').textContent=q.q;document.getElementById('progress').style.width=((current+1)*10)+'%';
+ const choices=document.getElementById('choices');choices.innerHTML='';
+ ['a','b'].forEach((key,i)=>{const btn=document.createElement('button');btn.className='choice'+(answers[current]===key.toUpperCase()?' selected':'');btn.innerHTML='<b>'+(i?'B':'A')+'</b>'+q[key];btn.onclick=()=>{answers[current]=key.toUpperCase();render()};choices.appendChild(btn)});
+ document.getElementById('next').disabled=!answers[current];document.getElementById('next').textContent=current===9?'결과 확인하기':'다음 질문';
+}
+function prev(){if(current>0){current--;render()}else{document.getElementById('quiz').classList.add('hidden');document.getElementById('intro').classList.remove('hidden')}}
+function next(){if(!answers[current])return;if(current<9){current++;render()}else showResult()}
+function getMBTI(){
+ const counts={E:0,I:0,F:0,T:0,J:0,P:0};
+ questions.forEach((q,i)=>{const letter=answers[i]==='A'?q.aType:q.bType;counts[letter]++});
+ return (counts.E>=2?'E':'I')+(answers[8]==='A'?'N':'S')+(counts.F>=2?'F':'T')+(counts.J>=2?'J':'P');
+}
+function showResult(){
+ const type=getMBTI(),ordered=ranking[type].split(' ');
+ let chosenType=ordered.find(t=>artists.some(a=>a[2]===t));
+ let pool=artists.filter(a=>a[2]===chosenType);
+ // Randomly select exactly one artist when multiple members share the best-ranked MBTI.
+ const chosen=pool[Math.floor(Math.random()*pool.length)];
+ document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');
+ document.getElementById('group').textContent=chosen[0];document.getElementById('artist').textContent=chosen[1];
+ window.lastResult=chosen[0]+' '+chosen[1];
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function restart(){document.getElementById('result').classList.add('hidden');document.getElementById('intro').classList.remove('hidden');current=0;answers={}}
+function copyResult(){const text='나와 가장 잘 맞는 CDF 아티스트는 '+(window.lastResult||'')+'!';if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>alert('결과를 복사했어요!')).catch(()=>alert(text))}else alert(text)}
+</script>
+</body>
+</html>
